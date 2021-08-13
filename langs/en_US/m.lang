@@ -1,0 +1,16 @@
+ModuleMName = M - soundwave generation
+ModuleMDesc = Soundwave generation
+
+#
+# Admin page
+#
+MSetup = M setup
+Settings = Settings
+MSetupPage = M setup page
+
+#
+# About page
+#
+About = About
+MAbout = About M
+MAboutPage = M about page
