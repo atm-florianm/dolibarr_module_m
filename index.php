@@ -39,6 +39,7 @@ if (!$res) die("Include of main fails");
  * @var User $user
  */
 
+require_once 'lib/m.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 
 // Load translation files required by the page
@@ -59,6 +60,36 @@ $now = dol_now();
  * Actions
  */
 
+switch($action) {
+case 'generate':
+	$melody = GETPOST('melody', 'alphanohtml');
+	if (!$melody) $melody = 'A3BC4a3bG4b2af2afeG2BA4';
+	$tempo = intval(GETPOST('tempo', 'int'));
+	if (!$tempo) $tempo = 60;
+
+	// tempo is in bpm, if 1 is a semiquaver, then the duration of 1 in seconds is 0.5 == (60 / 60) * 0.5
+
+	if ($melody) {
+		$s = new MSound();
+		$TNote = [];
+		if (preg_match_all('/([A-Ga-g])(\d?)/', $melody, $TMelody, PREG_SET_ORDER)) {
+			foreach ($TMelody as $note) {
+				LIST($full_note, $note_name, $note_duration) = $note;
+				if ($note_duration === '') $note_duration = 1;
+				$note_duration = 60 / ($tempo ?: 60) * 0.5 * intval($note_duration);
+				$TNote[] = ['name' => $note_name, 'duration' => $note_duration];
+				$s->note($note_name, $note_duration, 0.8);
+			}
+		}
+		umask(0);
+		$filename = 'test.wav';
+		$filepath = $conf->m->multidir_output[$conf->entity] . '/' . $filename;
+		WavFile::write($filepath, $s);
+	}
+
+	break;
+
+}
 
 
 /*
@@ -68,11 +99,34 @@ $now = dol_now();
 $form = new Form($db);
 $formfile = new FormFile($db);
 
-llxHeader("", $langs->trans("MArea"));
+$arrayofcss = ['/m/css/m.css'];
+llxHeader("", $langs->trans("MArea"), '', '', '', '', '', $arrayofcss, '');
 
 print load_fiche_titre($langs->trans("MArea"), '', 'm.png@m');
 
 echo '<div class="fichecenter">';
+$url = DOL_URL_ROOT . '/document.php?' . http_build_query([
+	'modulepart' => 'm',
+	'entity' => $conf->entity,
+	'file' => '/test.wav',
+]);
+
+?>
+<audio src="<?php  echo $url;  ?>"
+  type="audio/mpeg" 
+  controls>
+  I'm sorry. You're browser doesn't support HTML5 <code>audio</code>.
+</audio>
+
+<form>
+<input name="melody" placeholder="mélodie" value="<?php echo $melody; ?>" />
+<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
+<button name="action" value="generate">Générer</button>
+</form>
+<?php
+
+print '<pre class="debug_melody">' . json_encode($TNote ?? '', JSON_PRETTY_PRINT) . '</pre>';
+
 echo '<div class="fichethirdleft">';
 
 echo '</div>'; // class=fichethirdleft

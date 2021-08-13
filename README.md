@@ -1,9 +1,15 @@
-# M FOR [DOLIBARR ERP CRM](https://www.dolibarr.org)
-
-The module does nothing yet.
+# M SOUND GENERATOR FOR [DOLIBARR ERP CRM](https://www.dolibarr.org)
 
 Module sympa (j'espère) créé pour m'amuser.
-Ça me permet aussi d'expérimenter certains trucs avec Dolibarr.
+
+C’est un synthé ultra-basique (ne joue que des sin pures pour l'instant)
+avec un formulaire pour générer une mélodie simple qui sera enregistrée
+au format WAV PCM 16 bits dans les documents du module
+(`documents/m/*.wav`) et qui pourra être jouée depuis le navigateur (mais
+attention au cache car le fichier s'appelle toujours "test.wav").
+
+Ça me permet aussi d'expérimenter certains trucs que je ne fais pas
+d'habitude avec Dolibarr et PHP.
 
 
 ## Features

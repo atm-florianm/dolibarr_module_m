@@ -21,6 +21,8 @@
  * \brief   Library files with common functions for M
  */
 
+require_once dirname(__DIR__) . '/class/MSound.class.php';
+
 /**
  * Prepare admin pages header
  *

@@ -41,7 +41,7 @@ class MSound
 	var $data = [];
 
 	var $storageFmt = self::STORAGE_PCM;
-	var $freq = self::FREQ_22050;
+	var $sample_rate = self::FREQ_22050;
 
 	/**
 	 *
@@ -52,13 +52,30 @@ class MSound
 
 	/**
 	 * @param int $freq
-	 * @param int $duration
+	 * @param double $duration
 	 */
-	public function sine($freq = 440, $duration = 4) {
-		$t = 0;
-		while ($t < 100) {
-			$data[] = sin($t); // TODO = n’importe quoi, juste un placeholder
+	public function sine($freq = 220, $duration = 2.0, $volume = 0.5) {
+		$attenuation_speed = 3;
+		$hz1760 = 1760;
+		$n_samples = (int)($duration * $this->sample_rate);
+		for ($t = 0; $t < $n_samples; $t++) {
+			#$volume_attenuation = 1 - $t / $n_samples;
+			#(((x-6)/6)**2-2)+2 cf. http://www.fooplot.com/#W3sidHlwZSI6MCwiZXEiOiIoKCh4LTYpLzYpKio0KSIsImNvbG9yIjoiIzAwMDAwMCJ9LHsidHlwZSI6MTAwMH1d
+			#$volume_attenuation = floatval($t) / $n_samples * (floatval($t) / $n_samples - 2) + 1;
+			$volume_attenuation = ((floatval($t) - $n_samples) / $n_samples) ** (2*$attenuation_speed);
+			$this->data[] = $volume_attenuation * $volume * sin($freq * $t / $hz1760);
 		}
+	}
+
+	public function note($name, $duration = 1.0, $volume = 0.5)
+	{
+		# 1.0594630943592953 == 2 ** (1 / 12)
+		$base_freq = 220;
+		$TSemitone  = [ 'A' => 0, 'B' => 2, 'C' => 3, 'D' => 5, 'E' => 7, 'F' => 8, 'G' => 10 ];
+		$TSemitone += [ 'a' => 12, 'b' => 14, 'c' => 15, 'd' => 17, 'e' => 19, 'F' => 20, 'G' => 22 ];
+		$semitone = $TSemitone[$name];
+		$freq = (1.0594630943592953 ** $semitone) * $base_freq;
+		$this->sine($freq, $duration, $volume);
 	}
 
 	/**
@@ -85,9 +102,22 @@ class MSound
 	 */
 	public function serializeSample($sample, $bytesPerSample)
 	{
-		$sample = $sample & 0xffffff;
-		$shift = 8 * (3 - $bytesPerSample);
-		return $sample >> $shift;
+		// NOTE: 8 bit PCM = unsigned (0 - 255)
+		// 16 bit PCM = signed (-32768 - 32767)
+		// 24 bit PCM = ???
+		static $i = 0;
+		$i++;
+		if ($bytesPerSample === 1) return pack('C', 128 + (int)round($sample * 127));
+		if ($bytesPerSample === 2) return pack('v', (int)round($sample * 32767));
+
+		// 3 = harder
+
+		$n_signed = (int)round($sample * 8388608);
+		#$n = 8388607 + $n_signed;
+		$n = $n_signed;
+
+		// I might never know if this actually works because 16 bits are more than enough for a toy like this module.
+		return pack('CCC', $n & 255, ($n >> 8) & 255, ($n >> 16) & 255);
 	}
 }
 
@@ -114,6 +144,9 @@ class WavFile
 	 */
 	public static function write($fpath, $msound)
 	{
+		$bytesPerChunk = self::n_channels * self::bytesPerSample;
+		$bytesPerSecond = self::bytesPerSample * $msound->sample_rate * self::n_channels;
+		$bitsPerSample = self::bitsPerSample;
 
 		/*
 		 * Aide-mémoire pour `pack()`:
@@ -126,9 +159,9 @@ class WavFile
 		}
 
 		// --------- TOP-LEVEL BLOCK: WAVE (header of header)
-		fwrite($f, self::format);
-		fwrite($f, pack('V', $msound->getByteSize(self::bytesPerSample) + 44 - 8));
 		fwrite($f, self::filetype);
+		fwrite($f, pack('V', $msound->getByteSize(self::bytesPerSample) + 44 - 8));
+		fwrite($f, self::format);
 
 
 		// --------- TOP-LEVEL BLOCK: FORMAT (describes how to interpret the data block)
@@ -137,15 +170,10 @@ class WavFile
 
 		fwrite($f, pack('v', $msound->storageFmt));
 		fwrite($f, pack('v', self::n_channels));
-		fwrite($f, pack('V', $msound->freq));
-
-		$bytesPerChunk = self::n_channels * self::bytesPerSample;
-		$bytesPerSecond = $msound->freq * $bytesPerChunk;
-		$bitsPerSample = self::bitsPerSample;
-
+		fwrite($f, pack('V', $msound->sample_rate));
 		fwrite($f, pack('V', $bytesPerSecond));
 		fwrite($f, pack('v', $bytesPerChunk));
-		fwrite($f, pack('V', $bitsPerSample));
+		fwrite($f, pack('v', $bitsPerSample));
 
 		// --------- TOP-LEVEL BLOCK: DATA
 		fwrite($f, 'data');
@@ -153,6 +181,7 @@ class WavFile
 		foreach ($msound->data as $datum) {
 			fwrite($f, $msound->serializeSample($datum, self::bytesPerSample));
 		}
+		fclose($f);
 	}
 }
 
