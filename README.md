@@ -2,6 +2,10 @@
 
 The module does nothing yet.
 
+Module sympa (j'espère) créé pour m'amuser.
+Ça me permet aussi d'expérimenter certains trucs avec Dolibarr.
+
+
 ## Features
 
 

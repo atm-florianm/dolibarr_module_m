@@ -121,8 +121,8 @@ class modM extends DolibarrModules
 
 		$this->const = [];
 
-		if (!isset($conf->${$_name}) || !isset($conf->${$_name}->enabled)) {
-			$conf->${$_name} = (object) ['enabled' => 0];
+		if (!isset($conf->{$_name}) || !isset($conf->{$_name}->enabled)) {
+			$conf->{$_name} = (object) ['enabled' => 0];
 		}
 
 		$this->tabs = [];
