@@ -1,16 +1,18 @@
 ModuleMName = M - soundwave generation
 ModuleMDesc = Soundwave generation
 
-#
-# Admin page
-#
+ModuleFamilyToy = Toys
+
+# Menus
+menu_M = M
+menu_list = List
+
+# Setup
 MSetup = M setup
 Settings = Settings
 MSetupPage = M setup page
 
-#
-# About page
-#
+# About
 About = About
 MAbout = About M
 MAboutPage = M about page

@@ -1,5 +1,8 @@
-# CHANGELOG M FOR [DOLIBARR ERP CRM](https://www.dolibarr.org)
+# Module M
 
-## 1.0
+## Unreleased changes
+- NEW: does nothing
+
+## Version 0.1
 
 Initial version
