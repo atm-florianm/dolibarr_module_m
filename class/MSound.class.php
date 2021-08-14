@@ -72,8 +72,13 @@ class MSound
 		# 1.0594630943592953 == 2 ** (1 / 12)
 		$base_freq = 220;
 		$TSemitone  = [ 'A' => 0, 'B' => 2, 'C' => 3, 'D' => 5, 'E' => 7, 'F' => 8, 'G' => 10 ];
-		$TSemitone += [ 'a' => 12, 'b' => 14, 'c' => 15, 'd' => 17, 'e' => 19, 'F' => 20, 'G' => 22 ];
-		$semitone = $TSemitone[$name];
+		$TSemitone += [ 'a' => 12, 'b' => 14, 'c' => 15, 'd' => 17, 'e' => 19, 'f' => 20, 'g' => 22 ];
+		$TAcc = ['#' => 1, '^' => 1, 'm' => -1, '' => 0];
+		$semitone = $TSemitone[$name[0]];
+		if (strlen($name) > 1) {
+			$accidental = $name[1];
+			$semitone += $TAcc[$accidental];
+		}
 		$freq = (1.0594630943592953 ** $semitone) * $base_freq;
 		$this->sine($freq, $duration, $volume);
 	}
