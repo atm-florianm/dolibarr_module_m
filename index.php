@@ -115,19 +115,23 @@ echo '<div class="fichecenter">';
 $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
 	'modulepart' => 'm',
 	'entity' => $conf->entity,
-	'file' => '/test.wav',
+
+	'file' => '/test.wav', // TODO: objet en BDD avec une REF donc un nom de fichier dépendant de la ref
+
+	// pour empêcher le navigateur d’utiliser le cache, on change l’URL
+	'cache-prevention' => sprintf('%03d', rand(0, 999)),
 ]);
 
 ?>
 <audio src="<?php  echo $url;  ?>"
-  type="audio/mpeg" 
+  type="audio/mpeg"
   controls>
   I'm sorry. You're browser doesn't support HTML5 <code>audio</code>.
 </audio>
 
 <form>
 <input name="melody" placeholder="mélodie" value="<?php echo $melody; ?>" />
-<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
+	<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
 <button name="action" value="generate">Générer</button>
 </form>
 <?php
