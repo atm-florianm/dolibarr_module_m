@@ -107,9 +107,10 @@ $form = new Form($db);
 $formfile = new FormFile($db);
 
 $arrayofcss = ['/m/css/m.css'];
-llxHeader("", $langs->trans("MArea"), '', '', '', '', '', $arrayofcss, '');
+$arrayofjs = ['/m/js/synthe.js'];
+llxHeader("", $langs->trans("MTuneEditor"), '', '', '', '', $arrayofjs, $arrayofcss, '');
 
-print load_fiche_titre($langs->trans("MArea"), '', 'm.png@m');
+print load_fiche_titre($langs->trans("MTuneEditor"), '', 'm.png@m');
 
 echo '<div class="fichecenter">';
 $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
@@ -126,13 +127,14 @@ $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
 <audio src="<?php  echo $url;  ?>"
   type="audio/mpeg"
   controls>
-  I'm sorry. You're browser doesn't support HTML5 <code>audio</code>.
+	<?php echo $langs->trans('AudioHTML5NotAvailable'); ?>
 </audio>
 
-<form>
-<input name="melody" placeholder="mélodie" value="<?php echo $melody; ?>" />
+<form id="tune-generation">
+	<textarea name="melody" placeholder="mélodie"><?php echo $melody; ?></textarea>
+	<br/>
 	<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
-<button name="action" value="generate">Générer</button>
+	<button name="action" value="generate"><?php echo $langs->trans('Generate'); ?></button>
 </form>
 <?php
 

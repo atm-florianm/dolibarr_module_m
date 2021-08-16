@@ -1,0 +1,25 @@
+ModuleMName = M - génération d’ondes sonores
+ModuleMDesc = Générateur d’ondes sonores
+
+ModuleFamilyToy = Jouets
+
+# Menus
+menu_M = M
+menu_list = Liste
+
+# Setup
+MSetup = Configuration de M
+Settings = Configuration
+MSetupPage = Page de configuration de M
+
+# About
+About = À propos
+MAbout = À propos de M
+MAboutPage = Page "À propos" du module M
+
+
+#
+MTuneEditor = M - Éditeur de mélodie
+menu_TuneEditor = Éditeur de mélodie
+AudioHTML5NotAvailable = Si vous voyez ce texte et non un lecteur de média audio, mettez à jour votre navigateur.
+

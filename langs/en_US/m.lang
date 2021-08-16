@@ -16,3 +16,9 @@ MSetupPage = M setup page
 About = About
 MAbout = About M
 MAboutPage = M about page
+
+
+#
+MTuneEditor = M Tune Editor
+menu_TuneEditor = Tune Editor
+AudioHTML5NotAvailable = If you see this text instead of an audio player, please upgrade your web browser.

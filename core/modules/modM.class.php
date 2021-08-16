@@ -146,7 +146,7 @@ class modM extends DolibarrModules
 			'picto' => $this->picto,
 		]);
 		$this->_newMenu([
-			'path' => 'tools>M>list',
+			'path' => 'tools>M>TuneEditor',
 			'url' => '/' . $_name . '/index.php',
 			'perms' => 'instrument->read',
 		]);

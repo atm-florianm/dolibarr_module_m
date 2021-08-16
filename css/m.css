@@ -1,3 +1,8 @@
 .debug_melody {
 	display: none;
 }
+
+form#tune-generation textarea {
+	width: 80%;
+	min-height: 8em;
+}
