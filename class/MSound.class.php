@@ -73,7 +73,7 @@ class MSound
 		$base_freq = 220;
 		$TSemitone  = [ 'A' => 0, 'B' => 2, 'C' => 3, 'D' => 5, 'E' => 7, 'F' => 8, 'G' => 10 ];
 		$TSemitone += [ 'a' => 12, 'b' => 14, 'c' => 15, 'd' => 17, 'e' => 19, 'f' => 20, 'g' => 22 ];
-		$TAcc = ['#' => 1, '^' => 1, 'm' => -1, '' => 0];
+		$TAcc = ['#' => 1, '^' => 1, 'm' => -1, '\'' => 12, ',' => -12];
 		$semitone = $TSemitone[$name[0]];
 		if (strlen($name) > 1) {
 			$accidental = $name[1];

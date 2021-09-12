@@ -73,17 +73,22 @@ if (!$tempo) $tempo = 120;
 
 switch($action) {
 case 'generate':
+	// this is not a true-to-spec implementation of the ABC notation, but this
+	// is a David Goodenough® approved approximation
 
 	// tempo is in bpm, if 1 is a semiquaver, then the duration of 1 in seconds is 0.5 == (60 / 60) * 0.5
 
 	if ($melody) {
 		$s = new MSound();
 		$TNote = [];
-		if (preg_match_all('/([A-Ga-g][#m]?)([\d.]*)/', $melody, $TMelody, PREG_SET_ORDER)) {
+		if (preg_match_all('/([A-Ga-g][#m,\']?)([\d.\/]*)/', $melody, $TMelody, PREG_SET_ORDER)) {
 			foreach ($TMelody as $note) {
 				LIST($full_note, $note_name, $note_duration) = $note;
-				if ($note_duration === '') $note_duration = 1;
-				$note_duration = 60 / ($tempo ?: 60) * 0.5 * floatval($note_duration);
+				$ndParts = explode('/', $note_duration);
+				$note_duration = $ndParts[0] ?: 1;
+				$fraction = floatval($ndParts[1] ?: 1);
+				$note_duration = floatval($note_duration) / $fraction;
+				$note_duration = 60 / ($tempo ?: 60) * 0.5 * $note_duration;
 				$TNote[] = ['name' => $note_name, 'duration' => $note_duration];
 				$s->note($note_name, $note_duration, 0.8);
 			}
