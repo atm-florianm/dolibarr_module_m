@@ -110,7 +110,7 @@ $arrayofcss = ['/m/css/m.css'];
 $arrayofjs = ['/m/js/synthe.js'];
 llxHeader("", $langs->trans("MTuneEditor"), '', '', '', '', $arrayofjs, $arrayofcss, '');
 
-print load_fiche_titre($langs->trans("MTuneEditor"), '', 'm.png@m');
+print load_fiche_titre($langs->trans("MTuneEditor"), '', '');
 
 echo '<div class="fichecenter">';
 $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
@@ -136,6 +136,11 @@ $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
 	<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
 	<button name="action" value="generate"><?php echo $langs->trans('Generate'); ?></button>
 </form>
+
+<div id="instrument-editor">
+
+</div>
+
 <?php
 
 print '<pre class="debug_melody">' . json_encode($TNote ?? '', JSON_PRETTY_PRINT) . '</pre>';
