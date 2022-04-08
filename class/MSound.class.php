@@ -17,7 +17,14 @@
  */
 
 /**
+ * This class holds a low-level representation of a PCM sonud (which is basically what the .wav format uses for
+ * representing sound).
+ * The `data` property is an array of floats, each of which is a sample (you can think of it as a dot on a sine wave).
  *
+ * The methods `sine` and `note` can help you put samples into `data`.
+ * The method `serializeSample` performs a low-level encoding of what `data` contains for putting it in a .wav file.
+ *
+ * This class is not tied to Dolibarr, i.e. it could be used in any standalone project.
  */
 class MSound
 {
@@ -54,7 +61,8 @@ class MSound
 	 * @param int $freq
 	 * @param double $duration
 	 */
-	public function sine($freq = 220, $duration = 2.0, $volume = 0.5) {
+	public function sine($freq = 220, $duration = 2.0, $volume = 0.5)
+	{
 		$attenuation_speed = 3;
 		$hz1760 = 1760;
 		$n_samples = (int)($duration * $this->sample_rate);
@@ -67,6 +75,18 @@ class MSound
 		}
 	}
 
+	public function silence($duration)
+	{
+		$n_samples = (int)($duration * $this->sample_rate);
+		for ($t = 0; $t < $n_samples; $t++) $this->data[] = 0;
+	}
+
+	/**
+	 * @param string $name      Name of the note
+	 * @param double $duration  duration
+	 * @param double $volume    value between 0 (complete silence) and 1 (full volume)
+	 * @return void
+	 */
 	public function note($name, $duration = 1.0, $volume = 0.5)
 	{
 		# 1.0594630943592953 == 2 ** (1 / 12)
@@ -74,6 +94,10 @@ class MSound
 		$TSemitone  = [ 'A' => 0, 'B' => 2, 'C' => 3, 'D' => 5, 'E' => 7, 'F' => 8, 'G' => 10 ];
 		$TSemitone += [ 'a' => 12, 'b' => 14, 'c' => 15, 'd' => 17, 'e' => 19, 'f' => 20, 'g' => 22 ];
 		$TAcc = ['#' => 1, '^' => 1, 'm' => -1, '\'' => 12, ',' => -12];
+		if ($name[0] === 'z') {
+			$this->silence($duration);
+			return;
+		}
 		$semitone = $TSemitone[$name[0]];
 		if (strlen($name) > 1) {
 			$accidental = $name[1];
@@ -91,6 +115,28 @@ class MSound
 	public function getByteSize($bytesPerSample)
 	{
 		return count($this->data) * $bytesPerSample;
+	}
+
+	/**
+	 * Method for mixing two sounds (just a basic average, no weighted average, no dithering).
+	 * I am pretty sure that this is fairy inefficient: I guess there has to be a way to compute the final sample in a
+	 * single pass without requiring generating the samples for the two sounds first.
+	 *
+	 * @param MSound $other
+	 * @return void
+	 */
+	public function mix(MSound $other)
+	{
+		$countthis = count($this->data);
+		$countother = count($other->data);
+		$newdata = [];
+		$longest = max(count($this->data), count($other->data));
+		for ($i = 0; $i < $longest; $i++) {
+			$thissample = $i < $countthis ? $this->data[$i] : 0;
+			$othersample = $i < $countother ? $other->data[$i] : 0;
+			$newdata[] = 0.5 * ($thissample + $othersample);
+		}
+		$this->data = $newdata;
 	}
 
 	/**
@@ -127,6 +173,7 @@ class MSound
 }
 
 /*
+ * This class handles wav file headers
  * Ne gérera qu’un seul format pour simplifier.
  */
 class WavFile

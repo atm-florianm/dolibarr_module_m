@@ -66,8 +66,10 @@ $TMelodyPresets = [
 	'G2Ga3G3c3b6G2Ga3G3d3c6',
 ];
 $melody = GETPOST('melody', 'alphanohtml');
+$melody2 = GETPOST('melody2', 'alphanohtml');
 
 if (!$melody) $melody = $TMelodyPresets[rand(0, count($TMelodyPresets) - 1)];
+if (!$melody2) $melody2 = $TMelodyPresets[rand(0, count($TMelodyPresets) - 1)];
 $tempo = intval(GETPOST('tempo', 'int'));
 if (!$tempo) $tempo = 120;
 
@@ -81,7 +83,7 @@ case 'generate':
 	if ($melody) {
 		$s = new MSound();
 		$TNote = [];
-		if (preg_match_all('/([A-Ga-g][#m,\']?)([\d.\/]*)/', $melody, $TMelody, PREG_SET_ORDER)) {
+		if (preg_match_all('/([A-Ga-gz][#m,\']?)([\d.\/]*)/', $melody, $TMelody, PREG_SET_ORDER)) {
 			foreach ($TMelody as $note) {
 				LIST($full_note, $note_name, $note_duration) = $note;
 				$ndParts = explode('/', $note_duration);
@@ -93,6 +95,25 @@ case 'generate':
 				$s->note($note_name, $note_duration, 0.8);
 			}
 		}
+
+		// 2nd sound
+		$s2 = new MSound();
+		$TNote = [];
+		if (preg_match_all('/([A-Ga-gz][#m,\']?)([\d.\/]*)/', $melody2, $TMelody2, PREG_SET_ORDER)) {
+			foreach ($TMelody2 as $note) {
+				LIST($full_note, $note_name, $note_duration) = $note;
+				$ndParts = explode('/', $note_duration);
+				$note_duration = $ndParts[0] ?: 1;
+				$fraction = floatval($ndParts[1] ?: 1);
+				$note_duration = floatval($note_duration) / $fraction;
+				$note_duration = 60 / ($tempo ?: 60) * 0.5 * $note_duration;
+				$TNote[] = ['name' => $note_name, 'duration' => $note_duration];
+				$s2->note($note_name, $note_duration, 0.8);
+			}
+		}
+
+		// mix the two sounds
+		$s->mix($s2);
 		umask(0);
 		$filename = 'test.wav';
 		$filepath = $conf->m->multidir_output[$conf->entity] . '/' . $filename;
@@ -137,6 +158,7 @@ $url = DOL_URL_ROOT . '/document.php?' . http_build_query([
 
 <form id="tune-generation">
 	<textarea name="melody" placeholder="mélodie"><?php echo $melody; ?></textarea>
+	<textarea name="melody2" placeholder="mélodie"><?php echo $melody2; ?></textarea>
 	<br/>
 	<input name="tempo" type="number" value="<?php echo $tempo; ?>" placeholder="tempo" />
 	<button name="action" value="generate"><?php echo $langs->trans('Generate'); ?></button>
